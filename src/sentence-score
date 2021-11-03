@@ -23,7 +23,7 @@ def get_rank(word):
     return word
 
 
-def process_nlp_sentence(sentence):
+def score_nlp_sentence(sentence):
     score = 0
     for word in sentence.words:
         if word.upos not in ['ADV', 'ADJ', 'NOUN', 'VERB']:
@@ -51,9 +51,9 @@ with tqdm(total=total) as pbar:
         doc = nlp(content)
         score = 0
         for stanza_sentence in doc.sentences:
-            processed_sentence = process_nlp_sentence(stanza_sentence)
-            if processed_sentence is not None:
-                score += processed_sentence
+            nlp_sentence_score = score_nlp_sentence(stanza_sentence)
+            if nlp_sentence_score is not None:
+                score += nlp_sentence_score
             else:
                 score = 0
                 break
