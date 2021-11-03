@@ -1,13 +1,5 @@
 #!/bin/sh
 
-build() {
-  docker build -t cves-scorer .
-}
-
-run() {
-  docker run -it -v cves-scorer:/var/lib/cves/data cves-scorer
-}
-
 if ! [ -f Dockerfile ]; then
   printf >&2 "You don't appear to be in the correct directory\n"
   exit 1
@@ -15,13 +7,12 @@ fi
 
 case $1 in
   build)
-    build
+    docker build -t cves-scorer .
   ;;
   run)
-    run
+    docker run -it -v cves-scorer:/var/lib/cves/data cves-scorer
   ;;
   *)
-    build
-    run
+    printf "./cves-scorer-docker [build|run]\n"
   ;;
 esac
