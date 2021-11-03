@@ -13,7 +13,6 @@ update_cursor = conn.cursor()
 freq_cursor = conn.cursor()
 
 nlp = stanza.Pipeline(lang='es')
-#count = 1
 
 
 def get_rank(word):
@@ -48,7 +47,6 @@ sentences = cursor.execute('SELECT DISTINCT hash, content FROM sentence WHERE sc
 with tqdm(total=total) as pbar:
     for sentence in sentences: 
         hash_, content = sentence
-#        print(f'Processing sentence {count} [{content}]')
     
         doc = nlp(content)
         score = 0
@@ -62,5 +60,4 @@ with tqdm(total=total) as pbar:
     
         update_cursor.execute('UPDATE sentence SET score = ? WHERE hash = ?', (score, hash_))
         conn.commit()
-#        count += 1
         pbar.update(1)
