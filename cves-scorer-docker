@@ -5,7 +5,7 @@ build() {
 }
 
 run() {
-  docker run -it -v cves-scorer:/var/lib/cves cves-scorer
+  docker run -it -v cves-scorer:/var/lib/cves/data cves-scorer
 }
 
 if ! [ -f Dockerfile ]; then

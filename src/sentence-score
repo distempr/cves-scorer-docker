@@ -7,7 +7,7 @@ import stanza
 from tqdm import tqdm
 
 
-conn = sqlite3.connect('/var/lib/cves/cves.db')
+conn = sqlite3.connect('/var/lib/cves/data/cves.db')
 cursor = conn.cursor()
 update_cursor = conn.cursor()
 freq_cursor = conn.cursor()

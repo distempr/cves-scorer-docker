@@ -1,0 +1,12 @@
+#!/bin/sh
+
+db_path=/var/lib/cves/data/cves.db
+
+cd /usr/lib/cves || exit 1
+
+if ! [ -f "$db_path" ]; then
+  printf ':: Populating database ...\n'
+  bzip2 -dc cves-dump.sql.bz2 | sqlite3 "$db_path"
+fi
+
+exec ./sentence-score
