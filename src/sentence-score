@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+
+import sqlite3
+import time
+
+import stanza
+
+
+conn = sqlite3.connect('/var/lib/cves/cves.db')
+cursor = conn.cursor()
+update_cursor = conn.cursor()
+freq_cursor = conn.cursor()
+
+nlp = stanza.Pipeline(lang='es')
+count = 1
+
+
+def get_rank(word):
+    word = freq_cursor.execute(
+       'SELECT rank, frequency FROM frequency WHERE word = ?',
+       (word,)
+    ).fetchone()
+    return word
+
+
+def process_nlp_sentence(sentence):
+    score = 0
+    for word in sentence.words:
+        if word.upos not in ['ADV', 'ADJ', 'NOUN', 'VERB']:
+            continue
+
+        rank = get_rank(word.lemma)
+        if rank:
+            rank, freq = rank
+            score += rank
+        else:
+            return None
+
+    return score
+
+
+print(':: Sleeping for 5 seconds')
+time.sleep(5)
+
+sentences = cursor.execute('SELECT DISTINCT(hash), content FROM sentence WHERE score IS NULL AND selected = 1')
+for sentence in sentences: 
+    hash_, content = sentence
+    print(f'Processing sentence {count} [{content}]')
+
+    doc = nlp(content)
+    score = 0
+    for stanza_sentence in doc.sentences:
+        processed_sentence = process_nlp_sentence(stanza_sentence)
+        if processed_sentence is not None:
+            score += processed_sentence
+        else:
+            score = 0
+            break
+
+    update_cursor.execute('UPDATE sentence SET score = ? WHERE hash = ?', (score, hash_))
+    conn.commit()
+    count += 1
