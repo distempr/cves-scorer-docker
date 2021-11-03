@@ -6,7 +6,7 @@ RUN mkdir /usr/lib/cves /var/lib/cves && chown cves: /usr/lib/cves /var/lib/cves
 
 WORKDIR /usr/lib/cves
 COPY --chown=cves:cves src/requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --disable-pip-version-check -r requirements.txt
 
 USER cves
 ENV STANZA_RESOURCES_DIR=/usr/lib/cves/stanza
