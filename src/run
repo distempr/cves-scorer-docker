@@ -4,7 +4,7 @@ cd /usr/lib/cves || exit 1
 
 if ! [ -f /var/lib/cves/cves.db ]; then
   printf ':: Populating database ...\n'
-  sqlite3 /var/lib/cves/cves.db <cves-dump.sql || exit 1
+  bzip2 -dc /usr/lib/cves/cves-dump.sql.bz2 | sqlite3 /var/lib/cves/cves.db
 fi
 
 ./sentence-score
