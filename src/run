@@ -7,4 +7,4 @@ if ! [ -f /var/lib/cves/cves.db ]; then
   bzip2 -dc /usr/lib/cves/cves-dump.sql.bz2 | sqlite3 /var/lib/cves/cves.db
 fi
 
-./sentence-score
+exec ./sentence-score

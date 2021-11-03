@@ -4,6 +4,7 @@ import sqlite3
 import time
 
 import stanza
+from tqdm import tqdm
 
 
 conn = sqlite3.connect('/var/lib/cves/cves.db')
@@ -12,7 +13,7 @@ update_cursor = conn.cursor()
 freq_cursor = conn.cursor()
 
 nlp = stanza.Pipeline(lang='es')
-count = 1
+#count = 1
 
 
 def get_rank(word):
@@ -39,24 +40,27 @@ def process_nlp_sentence(sentence):
     return score
 
 
-print(':: Sleeping for 5 seconds')
+total = cursor.execute('SELECT COUNT(DISTINCT hash) FROM sentence WHERE score is NULL AND selected = 1').fetchone()[0]
+print(f':: Sleeping for 5 seconds and then processing {total} sentences')
 time.sleep(5)
 
-sentences = cursor.execute('SELECT DISTINCT(hash), content FROM sentence WHERE score IS NULL AND selected = 1')
-for sentence in sentences: 
-    hash_, content = sentence
-    print(f'Processing sentence {count} [{content}]')
-
-    doc = nlp(content)
-    score = 0
-    for stanza_sentence in doc.sentences:
-        processed_sentence = process_nlp_sentence(stanza_sentence)
-        if processed_sentence is not None:
-            score += processed_sentence
-        else:
-            score = 0
-            break
-
-    update_cursor.execute('UPDATE sentence SET score = ? WHERE hash = ?', (score, hash_))
-    conn.commit()
-    count += 1
+sentences = cursor.execute('SELECT DISTINCT hash, content FROM sentence WHERE score IS NULL AND selected = 1')
+with tqdm(total=total) as pbar:
+    for sentence in sentences: 
+        hash_, content = sentence
+#        print(f'Processing sentence {count} [{content}]')
+    
+        doc = nlp(content)
+        score = 0
+        for stanza_sentence in doc.sentences:
+            processed_sentence = process_nlp_sentence(stanza_sentence)
+            if processed_sentence is not None:
+                score += processed_sentence
+            else:
+                score = 0
+                break
+    
+        update_cursor.execute('UPDATE sentence SET score = ? WHERE hash = ?', (score, hash_))
+        conn.commit()
+#        count += 1
+        pbar.update(1)
