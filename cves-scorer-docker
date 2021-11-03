@@ -13,6 +13,6 @@ case $1 in
     docker run -it -v cves-scorer:/var/lib/cves/data cves-scorer
   ;;
   *)
-    printf "./cves-scorer-docker [build|run]\n"
+    printf "Usage: ./cves-scorer-docker [build|run]\n"
   ;;
 esac
