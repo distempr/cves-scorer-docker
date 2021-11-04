@@ -6,7 +6,11 @@ cd /usr/lib/cves || exit 1
 
 if ! [ -f "$db_path" ]; then
   printf ':: Populating database ...\n'
-  bzip2 -dc cves-dump.sql.bz2 | sqlite3 "$db_path"
+  if ! bzip2 -dc cves-dump.sql.bz2 | sqlite3 "$db_path"; then
+    rm "$db_path"
+    printf ':: Database import failed, exiting\n'
+    exit 1
+  fi
 fi
 
 exec ./sentence-score
